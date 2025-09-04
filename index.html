@@ -103,11 +103,18 @@
     }
 
     async function getCoords(place) {
+      // キャッシュ確認
+  	  const cache = localStorage.getItem(`nominatim_${place}`);
+ 	    if (cache) return JSON.parse(cache);
+      
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}`;
       const res = await fetch(url, { headers: { 'User-Agent': 'MyHobbyApp' }});
       const data = await res.json();
       if (data.length > 0) {
-        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+        const result = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+        // キャッシュ保存
+        localStorage.setItem(`nominatim_${place}`, JSON.stringify(result));
+        return result;
       } else {
         throw new Error("ざひょうが みつからなかった！");
       }
@@ -147,5 +154,6 @@
   </script>
 </body>
 </html>
+
 
 
